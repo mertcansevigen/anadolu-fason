@@ -11,6 +11,7 @@ const brut = selected.invoice_requested
   : net
 
 const total = Number(brut.toFixed(2))
+const finishing = selected.finishing_breakdown
 
   const downloadPDF = () => {
     const byteCharacters = atob(selected.file_base64)
@@ -123,6 +124,25 @@ const total = Number(brut.toFixed(2))
   label="Tutar"
   value={`₺${formatMoney(total)}`}
 />
+
+  {finishing && (
+  <>
+    {finishing.lamination && (
+      <Info
+        label="Laminasyon"
+        value={finishing.lamination.name}
+      />
+    )}
+
+    {finishing.aplikasyon && (
+      <Info
+        label="Aplikasyon"
+        value={finishing.aplikasyon.name}
+      />
+    )}
+  </>
+)}
+
         </div>
 
         {/* DOSYA */}

@@ -54,6 +54,7 @@ export default function Dashboard() {
         file_base64,
         file_url,
         link_url,
+        finishing_breakdown,
         materials!orders_material_id_fkey (
           name,
           price_per_m2

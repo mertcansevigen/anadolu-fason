@@ -28,6 +28,7 @@ export default function Orders(){
   file_base64,
   file_name,
   link_url,
+  finishing_breakdown,
   customer_phone,
   grand_total,
   invoice_requested,
