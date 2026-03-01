@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sipariş Formu - Dijital Baskı Merkezi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#127ae2",
+        premium: "#0f172a",
+        premiumCard: "#111c2d",
+      }
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+    }
+
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* ===== MODE BUTTON STYLE ===== */
+
+    .mode-btn{
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(12px);
+        color: #cbd5e1;
+        transition: all 0.3s ease;
+    }
+
+    .mode-btn:hover{
+        border-color: #127ae2;
+        box-shadow: 0 0 20px rgba(18,122,226,0.25);
+    }
+
+    .mode-btn.active{
+        background: linear-gradient(135deg,#127ae2,#1d4ed8);
+        border: 1px solid #127ae2;
+        color: white;
+        box-shadow: 0 0 35px rgba(18,122,226,0.45);
+    }
+
+</style>
+<style>
+    .uploadBtn{
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      background: #1e293b;
+      color: #94a3b8;
+      border: none;
+      cursor: pointer;
+    }
+
+    .uploadBtn:hover{
+      background: #334155;
+      color: white;
+    }
+
+    .uploadBtn.active{
+      background: linear-gradient(90deg,#2563eb,#3b82f6);
+      color: white;
+      box-shadow: 0 0 20px rgba(59,130,246,0.35);
+    }
+  </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+<div class="layout-container flex grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center border-b border-white/10 px-6 lg:px-20 py-4 bg-slate-900/70 backdrop-blur-xl sticky top-0 z-50">
+<a href="/anasayfa.html" 
+   class="flex items-center gap-4 hover:opacity-80 transition-all cursor-pointer">
+<div class="text-primary">
+<span class="material-symbols-outlined text-3xl text-primary">print</span>
+</div>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">Anadolu Fason Dijital Baskı Merkezi</h2>
+</a>
+</header>
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<!-- Page Title -->
+<div class="mb-8">
+<h1 class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-tight mb-2">Sipariş Formu</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base">Dijital baskı siparişinizi oluşturun. Lütfen teknik detayları kontrol edin.</p>
+</div>
+<div class="flex flex-col lg:flex-row gap-8">
+    <div class="w-full lg:w-2/3 space-y-8">
+    <div class="space-y-8">
+<!-- 1. Dosya Yükleme -->
+<section class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg">
+
+  <!-- Başlık -->
+  <div class="flex items-center gap-3 mb-4">
+    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-bold">1</span>
+    <h2 class="text-slate-900 dark:text-white text-xl font-bold">
+      Dosya Yükleme
+    </h2>
+  </div>
+
+  <!-- PDF / Link Butonları -->
+  <div class="flex justify-center gap-6 mb-6">
+
+  <button id="pdfBtn" class="uploadBtn active">PDF Yükle</button>
+<button id="linkBtn" class="uploadBtn">Link Yükle</button>
+
+</div>
+
+  <!-- PDF Section -->
+  <div id="pdfSection" class="mt-6">
+
+    <div id="uploadBox"
+      class="flex flex-col items-center gap-6 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 px-6 py-12 transition-all hover:border-primary/50">
+
+      <div id="uploadContent" class="flex flex-col items-center gap-6">
+
+        <span class="material-symbols-outlined text-5xl text-slate-400 dark:text-slate-600">
+          upload_file
+        </span>
+
+        <div class="flex w-full flex-col items-center gap-2 text-center">
+          <p class="text-slate-900 dark:text-white text-lg font-bold">
+            PDF Dosyanızı Buraya Sürükleyin
+          </p>
+          <p class="text-slate-500 dark:text-slate-400 text-sm">
+            Veya bilgisayarınızdan bir dosya seçin. Maksimum dosya boyutu: 50MB.
+          </p>
+        </div>
+
+      </div>
+
+      <button 
+  id="fileSelectBtn"
+  class="mt-4 px-10 py-3 rounded-2xl font-semibold text-white
+         bg-gradient-to-r from-primary to-blue-500
+         hover:scale-105 transition-all duration-300
+         shadow-[0_0_12px_rgba(59,130,246,0.35)]">
+  Dosya Seç
+</button>
+
+     <div id="pdfBox">
+  <input type="file" id="pdfUpload" accept="application/pdf" class="hidden">
+</div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- LINK BOX ARTIK DIŞARIDA -->
+<div id="linkBox"
+    class="hidden mt-6 p-6 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60">
+
+    <p class="text-slate-900 dark:text-white font-semibold mb-4">
+        Dosya Link'i
+    </p>
+
+    <input type="url"
+    id="driveLink"
+    required
+    pattern="https?://.+"
+    class="w-full h-11 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 text-slate-900 dark:text-white outline-none"
+    placeholder="https://drive.google.com/...">
+
+    <p class="text-slate-900 dark:text-white font-semibold mt-6 mb-2">
+        Açıklama (Zorunlu) 
+    </p>
+
+    <textarea id="linkDescription"
+        class="w-full rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 py-3 text-slate-900 dark:text-white outline-none"
+        placeholder="Dosya ile ilgili açıklama / / Lütfen Müşteri Bilgilerini Doldurun ! "></textarea>
+
+</div>
+
+<div id="pdfDimensionsBox"
+    class="hidden mt-4 p-4 bg-slate-900 border border-slate-700 rounded-lg text-center">
+    <p class="text-slate-500 text-xs uppercase tracking-wider">
+        Tespit Edilen Ölçü
+    </p>
+    <p id="pdfDimensions" class="text-white font-bold text-lg mt-1"></p>
+    <p id="pdfAreaLine" class="text-primary font-bold mt-2"></p>
+</div>
+
+<!-- Warnings -->
+<div class="mt-6 flex items-start gap-4 rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+
+<span class="material-symbols-outlined text-amber-500">warning</span>
+<div class="flex flex-col gap-1">
+<p class="text-amber-600 dark:text-amber-500 text-sm font-bold uppercase tracking-wider">Teknik Uyarılar</p>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                                        Dosyalar <b>CMYK</b> formatında olmalıdır. Spot renkler (Pantone vb.) CMYK'ya dönüştürülmelidir. Aksi halde renk sapmaları yaşanabilir.
+                                    </p>
+</div>
+</div>
+</section>
+</div>
+<!-- 2. Ürün Detayları -->
+<section class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg">
+<div class="flex items-center gap-3 mb-6">
+<span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-bold">2</span>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold">Ürün Detayları</h2>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<!-- Material Selection -->
+<div class="flex flex-col gap-2">
+<label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Malzeme Seçimi</label>
+<select id="materialSelect"
+class="h-11 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+
+<option value="">Malzeme Seçiniz</option>
+</select>
+<div id="frameOptionBox" class="hidden mt-4">
+  <label class="flex items-center gap-2 cursor-pointer">
+    <input type="checkbox" id="frameCheckbox" class="w-4 h-4">
+    <span>Çıtalı</span>
+  </label>
+</div>
+
+<!-- Adet -->
+<div class="flex flex-col gap-2">
+    <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">
+        Adet
+    </label>
+    <input 
+        type="number" 
+        id="quantity" 
+        value="1" 
+        min="1"
+        class="h-11 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+    >
+</div>
+<div class="flex flex-col gap-2">
+  <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">
+    Tahmini teslim
+  </label>
+
+  <div class="h-11 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 flex items-center text-slate-500">
+    Tahmini Teslimat 2 iş günü
+  </div>
+</div>
+
+<!-- Dimensions -->
+
+</div>
+</section>
+<!-- 3. Baskı Sonrası İşlemler -->
+<section class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-lg">
+<div class="flex items-center gap-3 mb-6">
+<span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-bold">3</span>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold">Baskı Sonrası İşlemler</h2>
+</div>
+<div class="space-y-6">
+<!-- Checkbox Options -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 cursor-pointer hover:border-primary/50 transition-colors">
+<input id="kusgozuCheckbox"
+       class="w-5 h-5 rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-transparent"
+       type="checkbox"/>
+<div class="flex flex-col">
+<span class="text-slate-900 dark:text-white font-medium">Kuşgözü</span>
+<span class="text-slate-500 dark:text-slate-400 text-xs">Kenarlara metal halka çakımı</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 cursor-pointer hover:border-primary/50 transition-colors">
+<input id="kaynakCheckbox"
+       class="w-5 h-5 rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary bg-transparent"
+       type="checkbox"/>
+<div class="flex flex-col">
+<span class="text-slate-900 dark:text-white font-medium">Kenar Kaynak</span>
+<span class="text-slate-500 dark:text-slate-400 text-xs">Dayanıklılık için kenar katlama</span>
+</div>
+</label>
+</div>
+<!-- Lamination (Radio) -->
+<div class="flex flex-col gap-3">
+  <div class="mt-6">
+
+  <button type="button"
+          id="laminationToggle"
+          class="w-full flex justify-between items-center
+                 px-4 py-3 rounded-xl
+                 bg-white/5 border border-white/10
+                 hover:bg-white/10 transition">
+
+    <span class="text-slate-200 font-semibold">
+      Laminasyon Seçeneği
+    </span>
+
+    <span id="laminationArrow">▼</span>
+  </button>
+
+  <div id="laminationOptions"
+     class="space-y-2 mt-3 overflow-hidden transition-all duration-500"
+     style="max-height:0;"></div>
+
+</div>
+</div><div class="flex flex-col gap-2 mt-6">
+<div class="flex flex-col gap-3 mt-6">
+  <div class="mt-6">
+
+  <button type="button"
+          id="aplikasyonToggle"
+          class="w-full flex justify-between items-center
+                 px-4 py-3 rounded-xl
+                 bg-white/5 border border-white/10
+                 hover:bg-white/10 transition">
+
+    <span class="text-slate-200 font-semibold">
+      Aplikasyon
+    </span>
+
+    <span id="aplikasyonArrow">▼</span>
+  </button>
+
+  <div id="aplikasyonOptions"
+     class="space-y-2 mt-3 overflow-hidden transition-all duration-500"
+     style="max-height:0;"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebar: Summary -->
+<aside class="w-full lg:w-1/3">
+  <div class="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-2xl p-6 shadow-lg shadow-black/60 sticky top-24">
+<h3 class="text-slate-900 dark:text-white text-lg font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+                                Sipariş Özeti
+                            </h3>
+<div class="space-y-4 mb-6">
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Malzeme</span>
+<span id="summaryMaterial" class="text-slate-900 dark:text-white font-medium">-</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Boyutlar</span>
+<span id="summaryDimensions" class="text-slate-900 dark:text-white font-medium">-</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Alan</span>
+<span id="summaryArea" class="text-slate-900 dark:text-white font-medium">-</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">İşlemler</span>
+<ul id="summaryFinishing" class="text-slate-900 dark:text-white font-medium space-y-1">
+  <li>Laminasyonsuz</li>
+</ul>
+</div>
+<hr class="border-slate-200 dark:border-slate-800"/>
+<div class="pt-4 border-t border-slate-800">
+    <div class="text-slate-400 text-sm mb-2">
+        Teklif Durumu
+    </div>
+
+    <div id="totalPrice" class="text-white font-semibold text-lg">
+        —
+    </div>
+    <div id="customerSection">
+
+  <h3 class="text-lg font-semibold mb-4">Müşteri Bilgileri</h3>
+
+  <div class="mb-4">
+    <label class="block text-sm mb-1">Ad Soyad *</label>
+    <input
+      type="text"
+      id="customer_name"
+      required
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+
+  <div class="mb-4">
+    <label class="block text-sm mb-1">Telefon *</label>
+    <input
+      type="tel"
+      id="customer_phone"
+      pattern="[0-9]{10,11}"
+      inputmode="numeric"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+      required
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+
+  <div class="mb-4">
+    <label class="block text-sm mb-1">E-posta *</label>
+    <input
+      type="email"
+      id="customer_email"
+      required
+      pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+</div>
+<!-- FIRMA ALANI -->
+<div id="companySection" class="hidden mt-6">
+
+  <h3 class="text-lg font-semibold mb-4">Firma Bilgileri</h3>
+
+  <div class="mb-4">
+    <input
+      id="companyNameMain"
+      placeholder="Firma Ünvanı *"
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+
+  <div class="mb-4">
+    <input
+      id="taxOfficeMain"
+      placeholder="Vergi Dairesi *"
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+
+  <div class="mb-4">
+    <input
+      id="taxNumberMain"
+      placeholder="Vergi No *"
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    />
+  </div>
+
+  <div class="mb-4">
+    <textarea
+      id="companyAddressMain"
+      placeholder="Adres *"
+      class="w-full p-3 rounded-lg bg-slate-800 border border-slate-600"
+    ></textarea>
+  </div>
+
+</div>
+  </div>
+</div>
+<div class="mt-4 flex items-center gap-2">
+  <input type="checkbox" id="invoiceCheckbox" class="w-4 h-4">
+  <label for="invoiceCheckbox" class="text-sm text-slate-300">
+    Fatura istiyorum (%20 KDV eklenecektir)
+  </label>
+</div>
+<button id="orderButton"
+onclick="openPaymentModal()"
+class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-lg flex items-center justify-center gap-2 transition-all">
+<span class="material-symbols-outlined">shopping_cart</span>
+                                Siparişi Onayla
+                            </button>
+<p class="text-center text-slate-400 text-xs mt-4">
+                                Fiyatlara KDV dahil değildir. <br/>Tahmini teslim: 2 iş günü.
+                            </p>
+</div>
+</aside>
+</div>
+<div class="mt-8">
+
+<!-- MÜŞTERİ ALANI -->
+
+<!-- Technical Guide Card -->
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="mt-12 border-t border-slate-200 dark:border-slate-800 py-10 px-6 lg:px-20 bg-slate-50 dark:bg-background-dark">
+<div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-4 text-slate-400">
+<span class="material-symbols-outlined">verified</span>
+<span class="text-sm">Endüstriyel Baskı Standartları</span>
+</div>
+<div class="flex gap-8 text-slate-500 dark:text-slate-400 text-sm font-medium">
+<a class="hover:text-primary" href="#">Kullanım Koşulları</a>
+<a class="hover:text-primary" href="#">Gizlilik Politikası</a>
+<a class="hover:text-primary" href="#">İletişim</a>
+</div>
+<div class="text-slate-400 text-sm">
+                        © 2024 Dijital Baskı Merkezi Ltd. Şti.
+                    </div>
+</div>
+<!-- PAYMENT MODAL -->
+<div id="paymentModal"
+class="hidden fixed inset-0 z-50 flex items-center justify-center">
+
+  <div onclick="closePaymentModal()"
+       class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+  <div class="relative bg-slate-900 w-[500px] max-w-[90%] rounded-xl p-8 z-10">
+
+    <h2 class="text-lg font-bold mb-4">Ödeme Bilgileri</h2>
+
+    <div id="paymentContent"></div>
+
+    <button onclick="confirmPayment()"
+      class="mt-6 w-full bg-primary py-3 rounded-lg font-semibold text-white">
+      Ödeme Yaptım
+    </button>
+
+  </div>
+</div>
+</footer>
+</div>
+</div>
+<script>
+
+const SUPABASE_URL = "https://ndljsaszokojzbbhbvrh.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kbGpzYXN6b2tvanpiYmhidnJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0MzUyMjYsImV4cCI6MjA4NzAxMTIyNn0.R-zgw2J3MX39VLzavChtV5WuUGMheAXqkbJmts8HlZM";
+
+const { createClient } = supabase;
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadBankAccounts(){
+
+  const { data, error } = await supabaseClient
+    .from("bank_accounts")
+    .select("*")
+    .eq("is_active", true);
+
+  if(error){
+    console.error("Banka hesapları alınamadı:", error);
+    return;
+  }
+
+  data.forEach(acc => {
+
+    if(acc.account_type === "company"){
+      window.companyIban = acc.iban;
+      window.companyAccountName = acc.account_name;
+    }
+
+    if(acc.account_type === "personal"){
+      window.personalIban = acc.iban;
+      window.personalAccountName = acc.account_name;
+    }
+
+  });
+}
+
+/* =========================
+   MATERIALS
+========================= */
+
+async function populateMaterialDropdown(){
+  const select = document.getElementById("materialSelect");
+  select.innerHTML = `<option value="">Malzeme Seçiniz</option>`;
+
+  const { data, error } = await supabaseClient
+    .from("materials")
+    .select("id,name");
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  data.forEach(mat=>{
+    select.innerHTML += `<option value="${mat.id}">${mat.name}</option>`;
+  });
+}
+
+/* =========================
+   CALCULATION DEBOUNCE
+========================= */
+
+let calcTimeout = null;
+
+function triggerCalculation(){
+
+  if(calcTimeout){
+    clearTimeout(calcTimeout);
+  }
+
+  calcTimeout = setTimeout(() => {
+    calculateFromBackend();
+  }, 300); // 300ms bekle
+}
+
+/* =========================
+   BACKEND CALCULATION
+========================= */
+
+async function calculateFromBackend(){
+
+    if(!window.lastWidth || !window.lastHeight) return;
+
+    const materialId = document.getElementById("materialSelect").value;
+    if(!materialId) return;
+
+    const quantity = parseInt(document.getElementById("quantity").value) || 1;
+
+    try {
+
+        console.log("WIDTH:", window.lastWidth);
+console.log("HEIGHT:", window.lastHeight);
+console.log("QTY:", document.getElementById("quantity").value);
+console.log("MAT:", document.getElementById("materialSelect").value);
+
+        const response = await fetch(
+            SUPABASE_URL + "/functions/v1/calculate-order",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": SUPABASE_ANON_KEY,
+                    "Authorization": "Bearer " + SUPABASE_ANON_KEY
+                },
+                
+  body: JSON.stringify({
+  width_cm: window.lastWidth,
+  height_cm: window.lastHeight,
+  quantity: parseInt(document.getElementById("quantity").value),
+  material_id: document.getElementById("materialSelect").value,
+  has_frame: document.getElementById("frameCheckbox")?.checked || false,
+
+  lamination_id:
+    document.querySelector('.lam-radio:checked')?.value || null,
+
+  aplikasyon_id:
+    document.querySelector('.apl-radio:checked')?.value || null,
+
+  kusgozu_selected:
+    document.getElementById("kusgozuCheckbox")?.checked || false,
+
+  kaynak_selected:
+    document.getElementById("kaynakCheckbox")?.checked || false
+})
+            }
+        );
+
+        const result = await response.json();
+        // 🔥 Finishing snapshot kaydı
+window.snapshotData = {
+  lamination_id:
+    document.querySelector('.lam-radio:checked')?.value || null,
+
+  aplikasyon_id:
+    document.querySelector('.apl-radio:checked')?.value || null,
+
+  kusgozu_selected:
+    document.getElementById("kusgozuCheckbox")?.checked || false,
+
+  kaynak_selected:
+    document.getElementById("kaynakCheckbox")?.checked || false,
+
+  finishing_total: result.finishing_total || 0,
+  finishing_breakdown: result.finishing_breakdown || {}
+};
+        console.log(result);
+
+        window.lastCalculatedArea = result.area_m2;
+window.lastGrandTotal = result.grand_total;
+window.selectedMaterialId = materialId;
+window.currentRollWidth = result.roll_width;
+updateDisplayedTotal();
+window.selectedMaterialId = materialId;
+
+console.log("AREA:", window.lastCalculatedArea);
+console.log("TOTAL:", window.lastGrandTotal);
+
+        if(!response.ok){
+
+    console.error(result);
+document.getElementById("pdfAreaLine").innerText = "";
+document.getElementById("summaryArea").innerText = "-";
+    document.getElementById("totalPrice").innerHTML = `
+        <div class="text-red-400 text-sm font-semibold">
+            ${result.error || "Fiyat hesaplanamadı"}
+        </div>
+    `;
+
+    window.lastGrandTotal = null;
+    window.lastCalculatedArea = null;
+
+    validateOrderForm(); // buton pasif olsun
+
+    return;
+}
+
+        document.getElementById("summaryMaterial").innerText =
+    document.getElementById("materialSelect")
+    .options[document.getElementById("materialSelect").selectedIndex].text;
+
+        document.getElementById("summaryArea").innerText =
+            result.area_m2.toFixed(2) + " m²";
+
+        document.getElementById("pdfAreaLine").innerText =
+            result.area_m2.toFixed(2) +
+            " m² (Rulo: " +
+            result.roll_width +
+            " cm)";
+
+    } catch(err){
+        console.error(err);
+    }
+}
+
+/* =========================
+   PDF HANDLING (FULL REPLACE)
+========================= */
+
+document.addEventListener("DOMContentLoaded", async function(){
+
+  document.getElementById("fileSelectBtn")
+  ?.addEventListener("click", function(){
+      document.getElementById("pdfUpload").click();
+  });
+
+  await populateMaterialDropdown();
+  await loadBankAccounts();
+
+  const pdfInput = document.getElementById("pdfUpload");
+
+  pdfInput.addEventListener("change", function(e) {
+
+      const file = e.target.files[0];
+      if (!file) return;
+
+window.selectedFile = e.target.files[0];
+window.selectedMode = "pdf";
+
+      const reader = new FileReader();
+
+      reader.onload = function() {
+
+          const typedarray = new Uint8Array(this.result);
+
+          pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+              pdf.getPage(1).then(function(page) {
+
+                  const viewport = page.getViewport({ scale: 1 });
+
+                  const widthCm = (viewport.width * 2.54 / 72);
+                  const heightCm = (viewport.height * 2.54 / 72);
+
+                  window.lastWidth = widthCm;
+                  window.lastHeight = heightCm;
+
+                  /* ÜST KUTUYU BAŞARI MODUNA AL */
+                  document.getElementById("uploadContent").innerHTML = `
+                      <span class="material-symbols-outlined text-6xl text-green-500">
+                          check_circle
+                      </span>
+                      <p class="text-green-500 text-2xl font-bold">
+                          PDF Başarıyla Yüklendi
+                      </p>
+                  `;
+                  document.getElementById("fileSelectBtn").remove();
+
+                  /* DOSYA KARTINI EKLE */
+                  if(!document.getElementById("pdfFileCard")){
+                      document.getElementById("uploadBox")
+                      .insertAdjacentHTML("afterend", `
+                          <div id="pdfFileCard" 
+                               class="mt-4 p-6 bg-green-900/30 border border-green-700 rounded-lg text-center">
+
+                              <p class="text-green-400 font-semibold mb-2">
+                                  PDF Yüklendi
+                              </p>
+
+                              <p class="text-white font-bold text-lg mb-4">
+                                  ${file.name}
+                              </p>
+
+                              <button onclick="removePDF()" 
+                                  class="text-red-500 font-bold hover:underline">
+                                  Dosyayı Sil
+                              </button>
+                          </div>
+                      `);
+                  }
+
+                  /* ÖLÇÜ GÖSTER */
+                  document.getElementById("pdfDimensions").innerText =
+                      widthCm.toFixed(1) + " cm x " + heightCm.toFixed(1) + " cm";
+
+                  document.getElementById("summaryDimensions").innerText =
+                      widthCm.toFixed(1) + " x " + heightCm.toFixed(1) + " cm";
+
+                  document.getElementById("pdfDimensionsBox")
+                      .classList.remove("hidden");
+
+                  triggerCalculation();
+              });
+          });
+      };
+
+      reader.readAsArrayBuffer(file);
+  });
+
+  document.getElementById("materialSelect")
+      .addEventListener("change", calculateFromBackend);
+
+  document.getElementById("quantity")
+      .addEventListener("change", triggerCalculation);
+});
+
+
+/* =========================
+   REMOVE PDF
+========================= */
+
+function removePDF(){
+
+    document.getElementById("pdfUpload").value = "";
+
+    window.lastWidth = null;
+    window.lastHeight = null;
+    window.selectedFile = null;
+
+    document.getElementById("pdfDimensionsBox")
+        .classList.add("hidden");
+
+    document.getElementById("pdfDimensions").innerText = "";
+    document.getElementById("summaryArea").innerText = "-";
+    document.getElementById("totalPrice").innerText = "—";
+
+    const fileCard = document.getElementById("pdfFileCard");
+    if(fileCard) fileCard.remove();
+
+    // Upload içeriğini eski haline getir
+    document.getElementById("uploadContent").innerHTML = `
+        <span class="material-symbols-outlined text-5xl text-slate-400">
+            upload_file
+        </span>
+        <div class="flex max-w-[480px] flex-col items-center gap-2 text-center">
+            <p class="text-white text-lg font-bold">
+                PDF Dosyanızı Buraya Sürükleyin
+            </p>
+            <p class="text-slate-400 text-sm">
+                Veya bilgisayarınızdan bir dosya seçin. Maksimum dosya boyutu: 50MB.
+            </p>
+        </div>
+    `;
+
+    // ✅ BUTONU GERİ EKLE
+    const uploadBox = document.getElementById("uploadBox");
+
+    uploadBox.insertAdjacentHTML("beforeend", `
+        <button 
+  id="fileSelectBtn"
+  class="mt-4 px-10 py-3 rounded-2xl font-semibold text-white
+         bg-gradient-to-r from-primary to-blue-500
+         hover:scale-105 transition-all duration-300
+         shadow-[0_0_12px_rgba(59,130,246,0.35)]">
+  Dosya Seç
+</button>
+    `);
+
+    // ✅ Click event tekrar bağla
+    document.getElementById("fileSelectBtn")
+      .addEventListener("click", function(){
+          document.getElementById("pdfUpload").click();
+      });
+
+    validateOrderForm();
+}
+
+// ===============================
+// ORDER TYPE FIX - OVERRIDE
+// ===============================
+
+document.addEventListener("DOMContentLoaded", function(){
+
+    const pdfSection = document.getElementById("pdfSection");
+    const linkBox = document.getElementById("linkBox");
+    const totalPrice = document.getElementById("totalPrice");
+    const orderButton = document.getElementById("orderButton");
+
+    function applyMode(mode){
+
+
+        if(mode === "link"){
+
+            window.selectedMode = "link";
+        console.log("LINK MODE AKTİF");
+
+            // PDF alanını gizle
+            pdfSection.style.display = "none";
+
+            // Link alanını göster
+            linkBox.classList.remove("hidden");
+
+            // PDF state temizle
+
+            document.getElementById("pdfDimensionsBox")
+                .classList.add("hidden");
+
+            // Summary reset
+            document.getElementById("summaryMaterial").innerText = "-";
+            document.getElementById("summaryDimensions").innerText = "Link ile gönderilecek";
+            document.getElementById("summaryArea").innerText = "-";
+            document.getElementById("summaryFinishing").innerText = "-";
+
+            totalPrice.innerHTML = `
+    <div style="font-size:14px; color:#94a3b8; font-weight:500;">
+        Teklif Durumu
+    </div>
+    <div class="text-slate-400 text-sm font-medium">
+        Teklif mail ile iletilecektir
+    </div>
+`;
+
+            orderButton.innerText = "Teklif Talebi Gönder";
+
+        } else {
+
+            // PDF alanını göster
+            pdfSection.style.display = "block";
+
+            // Link alanını gizle
+            linkBox.classList.add("hidden");
+
+            // Summary reset
+            document.getElementById("summaryDimensions").innerText = "-";
+            document.getElementById("summaryArea").innerText = "-";
+            totalPrice.innerText = "-";
+
+            orderButton.innerText = "Siparişi Onayla";
+        }
+    }
+
+});
+
+;
+
+// KDV hesap fonksiyonu
+function updateDisplayedTotal(){
+
+  const baseTotal = window.lastGrandTotal || 0;
+  const invoiceRequested =
+    document.getElementById("invoiceCheckbox")?.checked;
+
+  let finalTotal = baseTotal + (window.snapshotData?.finishing_total || 0);
+
+  if(invoiceRequested){
+  finalTotal = finalTotal * 1.20;
+}
+
+  const totalBox = document.getElementById("totalPrice");
+
+  if(totalBox){
+    totalBox.innerText =
+  "₺" + finalTotal.toLocaleString("tr-TR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  }
+}
+document.addEventListener("DOMContentLoaded", function(){
+
+
+    document.querySelectorAll('.lam-radio').forEach(radio => {
+  radio.addEventListener('change', triggerCalculation);
+});
+
+document.querySelectorAll('.apl-radio').forEach(radio => {
+  radio.addEventListener('change', triggerCalculation);
+});
+
+    document.getElementById("materialSelect")
+.addEventListener("change", async function(){
+
+  const selectedId = this.value;
+  if(!selectedId) return;
+
+  const { data } = await supabaseClient
+    .from("materials")
+    .select("has_frame")
+    .eq("id", selectedId)
+    .single();
+
+  if(data?.has_frame){
+    document.getElementById("frameOptionBox")
+      .classList.remove("hidden");
+  } else {
+    document.getElementById("frameOptionBox")
+      .classList.add("hidden");
+    document.getElementById("frameCheckbox").checked = false;
+  }
+
+  triggerCalculation();
+});
+
+  const invoiceCheckbox =
+    document.getElementById("invoiceCheckbox");
+
+  if(invoiceCheckbox){
+    invoiceCheckbox.addEventListener(
+      "change",
+      updateDisplayedTotal
+    );
+  }
+
+});
+
+function openPaymentModal(){
+
+  if(!window.selectedMode){
+    alert("Sipariş türü seçin");
+    return;
+  }
+
+  if(window.selectedMode === "pdf"){
+    if(!window.lastWidth || !window.lastGrandTotal){
+      alert("PDF yükleyip fiyat hesaplayın");
+      return;
+    }
+  }
+
+  if(window.selectedMode === "link"){
+    const link =
+      document.getElementById("driveLink")?.value;
+    const desc =
+      document.getElementById("linkDescription")?.value;
+
+    if(!link || !desc){
+      alert("Link ve açıklama girin");
+      return;
+    }
+  }
+
+  const invoiceRequested =
+    document.getElementById("invoiceCheckbox")?.checked;
+  const selectedIban = invoiceRequested
+  ? window.companyIban
+  : window.personalIban;
+  const selectedAccountName = invoiceRequested
+  ? window.companyAccountName
+  : window.personalAccountName;
+
+  const netTotal = window.lastGrandTotal || 0;
+const finishingTotal = window.snapshotData?.finishing_total || 0;
+
+let finalTotal = netTotal + finishingTotal;
+
+if(invoiceRequested){
+  finalTotal = finalTotal * 1.20;
+}
+
+  let html = `
+    <div class="mb-4">
+      <strong>Toplam:</strong> ₺${finalTotal.toLocaleString("tr-TR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})}
+    </div>
+
+    <div class="mt-4 text-sm text-slate-300 space-y-1">
+  <div>Hesap Adı: ${selectedAccountName}</div>
+  <div>IBAN: ${selectedIban}</div>
+</div>
+  `;
+
+  document.getElementById("paymentContent").innerHTML = html;
+  document.getElementById("paymentModal")
+    .classList.remove("hidden");
+}
+function closePaymentModal(){
+  document.getElementById("paymentModal")
+    .classList.add("hidden");
+}
+async function confirmPayment(){
+
+    console.log("MODE:", window.selectedMode);
+
+  if(!window.selectedMode){
+    alert("Sipariş türü seçilmedi");
+    return;
+  }
+
+  let fileBase64 = null;
+
+  // =========================
+  // PDF VARSA BASE64 YAP
+  // =========================
+
+  if(window.selectedMode === "pdf"){
+
+    if(!window.selectedFile){
+      alert("PDF seçilmedi");
+      return;
+    }
+
+    const buffer = await window.selectedFile.arrayBuffer();
+    const bytes = new Uint8Array(buffer);
+
+    let binary = "";
+    bytes.forEach(b => binary += String.fromCharCode(b));
+
+    fileBase64 = btoa(binary);
+  }
+
+  // =========================
+  // ORDER PAYLOAD
+  // =========================
+
+  const invoiceRequested =
+  document.getElementById("invoiceCheckbox")?.checked;
+  const base = window.lastGrandTotal || 0;
+const finishing = window.snapshotData?.finishing_total || 0;
+const net = base + finishing;
+
+const withKdv = invoiceRequested
+  ? net * 1.20
+  : net
+
+const orderPayload = {
+  order_type: window.selectedMode,
+  width_cm: window.lastWidth || null,
+  height_cm: window.lastHeight || null,
+  area_m2: window.lastCalculatedArea || null,
+  quantity: parseInt(document.getElementById("quantity")?.value) || 1,
+  material_id: window.selectedMaterialId || null,
+  grand_total: net,
+  total_with_kdv: withKdv,
+  file_base64: fileBase64,
+  file_name: window.selectedFile ? window.selectedFile.name : null,
+  link_url: window.selectedMode === "link"
+    ? document.getElementById("driveLink")?.value
+    : null,
+...(window.snapshotData || {}),
+  status: "pending",
+
+  // 🔥 MÜŞTERİ BİLGİLERİ
+customer_name: document.getElementById("customer_name")?.value.trim(),
+customer_email: document.getElementById("customer_email")?.value.trim(),
+customer_phone: document.getElementById("customer_phone")?.value.trim(),
+
+  // 🔥 FATURA BİLGİLERİ
+  invoice_requested: invoiceRequested,
+
+  company_name: invoiceRequested
+    ? document.getElementById("companyNameMain")?.value
+    : null,
+
+  tax_office: invoiceRequested
+  ? document.getElementById("taxOfficeMain")?.value
+  : null,
+
+  tax_number: invoiceRequested
+  ? document.getElementById("taxNumberMain")?.value
+  : null,
+
+  company_address: invoiceRequested
+  ? document.getElementById("companyAddressMain")?.value
+  : null,
+
+};
+
+  const { error } =
+    await supabaseClient
+      .from("orders")
+      .insert(orderPayload);
+
+  if(error){
+    console.error(error);
+    alert("Sipariş kaydedilemedi");
+    return;
+  }
+
+  alert("Sipariş başarıyla kaydedildi");
+  location.reload();
+}
+document.addEventListener("DOMContentLoaded", function(){
+
+  const frameCheckbox = document.getElementById("frameCheckbox");
+
+  if(frameCheckbox){
+    frameCheckbox.addEventListener("change", function(){
+      triggerCalculation();
+    });
+  }
+
+});
+function validateOrderForm(){
+
+  const name = document.getElementById("customer_name")?.value.trim();
+  const phone = document.getElementById("customer_phone")?.value.trim();
+  const email = document.getElementById("customer_email")?.value.trim();
+
+  const orderButton = document.getElementById("orderButton");
+
+  let isValid = true;
+
+  // Müşteri bilgileri zorunlu
+  const invoiceChecked = document.getElementById("invoiceCheckbox")?.checked;
+
+if(invoiceChecked){
+    const company = document.getElementById("companyNameMain")?.value.trim();
+    const taxOffice = document.getElementById("taxOfficeMain")?.value.trim();
+    const taxNumber = document.getElementById("taxNumberMain")?.value.trim();
+
+    if(!company || !taxOffice || !taxNumber){
+        isValid = false;
+    }
+}
+
+  if(!window.selectedMode){
+  isValid = false;
+}
+
+if(window.selectedMode === "pdf"){
+  if(!window.lastWidth || !window.lastHeight){
+    isValid = false;
+  }
+}
+
+if(window.selectedMode === "link"){
+  const link =
+    document.getElementById("driveLink")?.value.trim();
+  const desc =
+    document.getElementById("linkDescription")?.value.trim();
+
+  if(!link || !desc){
+    isValid = false;
+  }
+}
+
+  if(isValid){
+    orderButton.disabled = false;
+    orderButton.classList.remove("opacity-50","cursor-not-allowed");
+  } else {
+    orderButton.disabled = true;
+    orderButton.classList.add("opacity-50","cursor-not-allowed");
+  }
+}
+document.addEventListener("DOMContentLoaded", function(){
+
+  const fields = [
+ "customer_name",
+ "customer_phone",
+ "customer_email",
+ "driveLink",
+ "linkDescription",
+ "quantity",
+ "companyNameMain",
+ "taxOfficeMain",
+ "taxNumberMain",
+ "invoiceCheckbox"
+];
+
+fields.forEach(id=>{
+  const el = document.getElementById(id);
+  if(el){
+    el.addEventListener("input", validateOrderForm);
+  }
+});
+
+  document.getElementById("invoiceCheckbox")
+  ?.addEventListener("change", validateOrderForm);
+
+  document.getElementById("materialSelect")
+    ?.addEventListener("change", validateOrderForm);
+
+  validateOrderForm(); // sayfa açılınca kontrol
+});
+document.addEventListener("DOMContentLoaded", function () {
+
+  const invoiceCheckbox = document.getElementById("invoiceCheckbox");
+
+  const customerFields = [
+    "customer_name",
+    "customer_phone",
+    "customer_email"
+  ];
+
+  const getCustomerFilled = () => {
+    return customerFields.some(id => {
+      const el = document.getElementById(id);
+      return el && el.value.trim() !== "";
+    });
+  };
+
+  const toggleCustomerFields = (disabled) => {
+    customerFields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = disabled;
+    });
+  };
+
+  // 📌 Checkbox değişince
+  invoiceCheckbox.addEventListener("change", function () {
+
+    if (this.checked) {
+      toggleCustomerFields(true);
+    } else {
+      toggleCustomerFields(false);
+    }
+
+  });
+
+  // 📌 Müşteri alanları yazılınca
+  customerFields.forEach(id => {
+    const el = document.getElementById(id);
+
+    if (el) {
+      el.addEventListener("input", function () {
+
+        if (getCustomerFilled()) {
+          invoiceCheckbox.disabled = true;
+        } else {
+          invoiceCheckbox.disabled = false;
+        }
+
+      });
+    }
+  });
+
+});
+document.getElementById("invoiceCheckbox")
+.addEventListener("change", function(){
+
+  const customer = document.getElementById("customerSection");
+  const company = document.getElementById("companySection");
+
+  if(this.checked){
+    customer.style.display = "none";
+    company.classList.remove("hidden");
+  } else {
+    customer.style.display = "block";
+    company.classList.add("hidden");
+  }
+
+});
+document.getElementById("invoiceCheckbox")
+.addEventListener("change", function(){
+
+  const customer = document.getElementById("customerSection");
+  const company = document.getElementById("companySection");
+
+  if(this.checked){
+    customer.classList.add("hidden");
+    company.classList.remove("hidden");
+  } else {
+    customer.classList.remove("hidden");
+    company.classList.add("hidden");
+  }
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+  const pdfBtn = document.getElementById("pdfBtn");
+  const linkBtn = document.getElementById("linkBtn");
+  const pdfSection = document.getElementById("pdfSection");
+  const linkBox = document.getElementById("linkBox");
+  const totalPrice = document.getElementById("totalPrice");
+
+  window.selectedMode = "pdf";
+
+  function activate(mode){
+
+    pdfBtn.classList.remove("active");
+    linkBtn.classList.remove("active");
+
+    if(mode === "link"){
+      linkBtn.classList.add("active");
+      pdfSection.classList.add("hidden");
+      linkBox.classList.remove("hidden");
+
+      totalPrice.innerHTML = `
+        <div class="text-slate-400 text-sm font-medium">
+          Fiyat ve detaylı bilgiler mail ile belirtilecektir.
+        </div>
+      `;
+
+      window.selectedMode = "link";
+
+    }else{
+
+      pdfBtn.classList.add("active");
+      pdfSection.classList.remove("hidden");
+      linkBox.classList.add("hidden");
+
+      totalPrice.innerText = "—";
+
+      window.selectedMode = "pdf";
+    }
+  }
+
+  pdfBtn.addEventListener("click", ()=> activate("pdf"));
+  linkBtn.addEventListener("click", ()=> activate("link"));
+
+  activate("pdf"); // default
+
+});
+document.getElementById("customer_name")
+  .addEventListener("input", validateOrderForm);
+
+document.getElementById("customer_phone")
+  .addEventListener("input", validateOrderForm);
+
+document.getElementById("customer_email")
+  .addEventListener("input", validateOrderForm);
+</script>
+<script>
+  const pdfBtn = document.getElementById("pdfBtn")
+  const linkBtn = document.getElementById("linkBtn")
+
+  pdfBtn.addEventListener("click", () => {
+    pdfBtn.classList.add("active")
+    linkBtn.classList.remove("active")
+  })
+
+  linkBtn.addEventListener("click", () => {
+    linkBtn.classList.add("active")
+    pdfBtn.classList.remove("active")
+  })
+  async function loadLaminationOptions() {
+    document.addEventListener("change", function(e){
+
+  if(e.target.name === "lamination"){
+
+    document.querySelectorAll(".lam-dot")
+      .forEach(d => d.classList.add("hidden"));
+
+    const label = e.target.closest("label");
+
+    if(label && label.querySelector(".lam-dot")){
+      label.querySelector(".lam-dot")
+        .classList.remove("hidden");
+    }
+
+    window.selectedLaminationId = e.target.value;
+    window.selectedLaminationName =
+      label.querySelector("span").innerText;
+
+  }
+
+});
+  const { data, error } = await supabaseClient
+    .from("post_operations")
+    .select("*")
+    .eq("category", "laminasyon")
+    .eq("is_active", true);
+
+  if (error) {
+    console.error("Laminasyon çekilemedi:", error);
+    return;
+  }
+
+  const container = document.getElementById("laminationOptions");
+  container.innerHTML = "";
+
+  data.forEach(item => {
+    container.innerHTML += `
+      <label class="flex items-center justify-between px-4 py-3 rounded-xl 
+               bg-white/5 border border-white/10 
+               hover:bg-white/10 transition cursor-pointer">
+
+  <div class="flex items-center gap-3">
+    <div class="w-4 h-4 rounded-full border border-white/40 
+                flex items-center justify-center">
+      <div class="w-2 h-2 rounded-full bg-blue-500 hidden 
+                  lam-dot"></div>
+    </div>
+    <span class="text-slate-200">${item.name}</span>
+  </div>
+
+  <input type="radio" name="lamination" value="${item.id}" 
+         class="hidden lam-radio">
+</label>
+    `;
+  });
+}
+document.addEventListener("change", function(event){
+
+  if(event.target.name === "lamination"){
+
+    const selectedLabel =
+      event.target.closest("label");
+
+    const selectedText =
+      selectedLabel.querySelector("span").innerText;
+
+    const summary =
+      document.getElementById("summaryFinishing");
+
+    summary.innerHTML = ""; // önce temizle
+
+    const li = document.createElement("li");
+    li.innerText = selectedText;
+
+    summary.appendChild(li);
+  }
+
+});
+loadLaminationOptions();
+function updateFinishingSummary(){
+
+  const summary = document.getElementById("summaryFinishing");
+  summary.innerHTML = "";
+
+  // Laminasyon
+  const selectedLam =
+    document.querySelector('input[name="lamination"]:checked');
+
+  if(selectedLam){
+    const lamText =
+      selectedLam.closest("label")
+      .querySelector("span").innerText;
+
+    const li = document.createElement("li");
+    li.innerText = lamText;
+    summary.appendChild(li);
+  }
+
+  // Kuşgözü
+  const kusgozu =
+    document.getElementById("kusgozuCheckbox");
+
+  if(kusgozu && kusgozu.checked){
+    const li = document.createElement("li");
+    li.innerText = "Kuşgözü";
+    summary.appendChild(li);
+  }
+
+  // Kenar Kaynak
+  const kaynak =
+    document.getElementById("kaynakCheckbox");
+
+  if(kaynak && kaynak.checked){
+    const li = document.createElement("li");
+    li.innerText = "Kenar Kaynak";
+    summary.appendChild(li);
+  }
+  // Aplikasyon
+const selectedApl =
+  document.querySelector('input[name="aplikasyon"]:checked');
+
+if(selectedApl){
+  const aplText =
+    selectedApl.closest("label")
+    .querySelector("span").innerText;
+
+  const li = document.createElement("li");
+  li.innerText = aplText;
+  summary.appendChild(li);
+}
+
+  if(summary.innerHTML === ""){
+    summary.innerHTML = "<li>Yok</li>";
+  }
+}
+document.addEventListener("change", function(event){
+
+  // Laminasyon
+  if(event.target.name === "lamination"){
+    updateFinishingSummary();
+    triggerCalculation();
+  }
+
+  // Aplikasyon
+  if(event.target.name === "aplikasyon"){
+
+  // tüm noktaları kapat
+  document.querySelectorAll(".apl-dot")
+    .forEach(dot => dot.style.opacity = "0");
+
+  // seçilen radio'nun label'ını bul
+  const label = event.target.closest("label");
+
+  if(label){
+    const dot = label.querySelector(".apl-dot");
+    if(dot){
+      dot.style.opacity = "1";
+    }
+  }
+    updateFinishingSummary();
+    triggerCalculation();
+  }
+
+  // Kuşgözü
+  if(event.target.id === "kusgozuCheckbox"){
+    updateFinishingSummary();
+    triggerCalculation();
+  }
+
+  // Kenar Kaynak
+  if(event.target.id === "kaynakCheckbox"){
+    updateFinishingSummary();
+    triggerCalculation();
+  }
+
+});
+async function loadAplikasyonOptions() {
+
+  const { data, error } = await supabaseClient
+    .from("post_operations")
+    .select("*")
+    .eq("category", "aplikasyon")
+    .eq("is_active", true);
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const container =
+    document.getElementById("aplikasyonOptions");
+
+  container.innerHTML = "";
+
+  data.forEach(item => {
+    container.innerHTML += `
+      <label class="flex items-center justify-between px-4 py-3 rounded-xl 
+                     bg-white/5 border border-white/10 
+                     hover:bg-white/10 transition cursor-pointer">
+
+        <div class="flex items-center gap-3">
+          <div class="w-4 h-4 rounded-full border border-white/40 
+                      flex items-center justify-center">
+            <div class="w-2 h-2 rounded-full bg-blue-500 apl-dot"
+     style="opacity:0; transition:opacity 0.2s;"></div>
+          </div>
+          <span class="text-slate-200">${item.name}</span>
+        </div>
+
+        <input type="radio" name="aplikasyon" 
+               value="${item.id}" 
+               class="hidden apl-radio">
+      </label>
+    `;
+  });
+
+}
+loadAplikasyonOptions();
+
+function smoothToggle(contentId, arrowId){
+
+  const content = document.getElementById(contentId);
+  const arrow   = document.getElementById(arrowId);
+
+  const isClosed = content.style.maxHeight === "" ||
+                   content.style.maxHeight === "0px";
+
+  if(isClosed){
+
+    // önce otomatik yükseklik al
+    content.style.maxHeight = "none";
+    const height = content.scrollHeight;
+
+    // sıfıra çek
+    content.style.maxHeight = "0px";
+
+    // bir frame bekle
+    requestAnimationFrame(() => {
+      content.style.maxHeight = height + "px";
+    });
+
+    arrow.innerText = "▲";
+
+  }else{
+
+    content.style.maxHeight = "0px";
+    arrow.innerText = "▼";
+  }
+}
+
+// Laminasyon
+document.getElementById("laminationToggle")
+  .addEventListener("click", function(){
+    smoothToggle("laminationOptions","laminationArrow");
+});
+
+// Aplikasyon
+document.getElementById("aplikasyonToggle")
+  .addEventListener("click", function(){
+    smoothToggle("aplikasyonOptions","aplikasyonArrow");
+});
+</script>
+</body>
+</html>

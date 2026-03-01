@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yönetici Girişi - Anadolu Fason</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (!data.session) {
+    window.location.href = "admin_login.html";
+    return;
+  }
+
+  const role = data.session.user.user_metadata.role;
+
+  if (role !== "admin") {
+    alert("Yetkisiz erişim");
+    await supabaseClient.auth.signOut();
+    window.location.href = "admin_login.html";
+  }
+
+});
+</script>
+<button onclick="logout()" class="text-red-400 mt-6">
+  Çıkış Yap
+</button>
+<script>
+async function logout(){
+  await supabaseClient.auth.signOut();
+  window.location.href = "admin_login.html";
+}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        primary: "#127ae2",
+        background: "#0f1419"
+      }
+    }
+  }
+}
+</script>
+
+<style>
+body { font-family: 'Inter', sans-serif; }
+.concrete {
+  background-color: #0f1419;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+</style>
+</head>
+
+<body class="concrete text-white min-h-screen flex items-center justify-center">
+
+<div class="w-full max-w-md p-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-extrabold tracking-tight">Yönetici Paneli</h1>
+    <p class="text-slate-400 text-sm mt-2">Yetkili giriş gereklidir</p>
+  </div>
+
+  <div class="space-y-6">
+
+    <div>
+      <label class="text-sm text-slate-400">Mail Adresi</label>
+      <input id="username"
+        type="email"
+        class="w-full mt-2 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-primary outline-none"
+        placeholder="Mail hesabınızı giriniz">
+    </div>
+
+    <div>
+      <label class="text-sm text-slate-400">Şifre</label>
+      <input id="password"
+        type="password"
+        class="w-full mt-2 px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-primary outline-none"
+        placeholder="Şifrenizi girin">
+    </div>
+
+    <button onclick="login()"
+      class="w-full bg-primary hover:bg-primary/90 py-3 rounded-lg font-bold transition-all">
+      Giriş Yap
+    </button>
+
+    <p id="error" class="text-red-500 text-sm text-center hidden">
+      Hatalı kullanıcı adı veya şifre
+    </p>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://ndljsaszokojzbbhbvrh.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_e2RdWGpQaiEtZi_AzHoxdg_K7IqiwSH";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+async function login() {
+
+  const email = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    document.getElementById("error").classList.remove("hidden");
+    return;
+  }
+
+  window.location.href = "/";
+}
+</script>
+</body>
+</html>
