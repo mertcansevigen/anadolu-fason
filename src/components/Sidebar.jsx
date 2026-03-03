@@ -33,15 +33,15 @@ function Sidebar() {
         Siparişler
       </NavLink>
 
-      <NavLink to="/materials" style={linkStyle}>
+      <NavLink to="/admin/materials" style={linkStyle}>
         Malzemeler
       </NavLink>
 
-      <NavLink to="/banks" style={linkStyle}>
+      <NavLink to="/admin/banks" style={linkStyle}>
         Banka Hesapları
       </NavLink>
 
-      <NavLink to="/post-operations" style={linkStyle}>
+      <NavLink to="/admin/post-operations" style={linkStyle}>
         Baskı Sonrası İşlemler
       </NavLink>
 
