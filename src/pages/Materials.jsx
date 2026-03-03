@@ -35,7 +35,7 @@ export default function Materials() {
       return
     }
 
-    setMaterials(data || [])
+    setMaterials(data ?? [])
   }
 
   const addMaterial = async () => {
@@ -220,7 +220,7 @@ export default function Materials() {
                   <div>
                     <strong>Rulolar:</strong>
 
-                    {mat.material_rolls.map(roll => (
+                    {mat.material_rolls?.map(roll => (
                       <div key={roll.id} className="flex gap-3 mt-2">
                         {roll.roll_width_mm} mm
                         <button
